@@ -49,13 +49,10 @@ const meterReadingService = {
     });
   },
 
-  updateMeterReading: async (id, data) => {
+  updateMeterReading: async (roomId, month, year, data) => {
     // Build update object with only provided fields
     const updateData = {};
     
-    if (data.roomId !== undefined) updateData.roomId = parseInt(data.roomId);
-    if (data.month !== undefined) updateData.month = parseInt(data.month);
-    if (data.year !== undefined) updateData.year = parseInt(data.year);
     if (data.previousElectric !== undefined) updateData.previousElectric = parseFloat(data.previousElectric);
     if (data.currentElectric !== undefined) updateData.currentElectric = parseFloat(data.currentElectric);
     if (data.previousWater !== undefined) updateData.previousWater = parseFloat(data.previousWater);
@@ -69,8 +66,17 @@ const meterReadingService = {
     }
 
     return await prisma.meterReading.update({
-      where: { id },
-      data: updateData
+      where: {
+        roomId_month_year: {
+          roomId,
+          month,
+          year
+        }
+      },
+      data: updateData,
+      include: {
+        room: true
+      }
     });
   },
 

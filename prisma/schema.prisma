@@ -247,8 +247,8 @@ model MeterReading {
 
 model Invoice {
   id              Int      @id @default(autoincrement())
-  referenceId     Int
-  refType         String   // "Daily" or "Monthly"
+  dailyBookingId  Int?
+  monthlyContractId Int?
   invoiceDate     DateTime @db.Date
   dueDate         DateTime @db.Date
   rentAmount      Decimal  @db.Decimal(10, 2)
@@ -262,8 +262,8 @@ model Invoice {
   updatedAt       DateTime @updatedAt
 
   // Relations
-  dailyBooking    DailyBooking?  @relation("DailyBookingInvoices", fields: [referenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_daily_booking_invoice")
-  monthlyContract MonthlyContract? @relation("MonthlyContractInvoices", fields: [referenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_monthly_contract_invoice")
+  dailyBooking    DailyBooking?  @relation("DailyBookingInvoices", fields: [dailyBookingId], references: [id], onDelete: Cascade, map: "fk_daily_booking_invoice")
+  monthlyContract MonthlyContract? @relation("MonthlyContractInvoices", fields: [monthlyContractId], references: [id], onDelete: Cascade, map: "fk_monthly_contract_invoice")
   payments        Payment[]
 
   @@map("invoices")

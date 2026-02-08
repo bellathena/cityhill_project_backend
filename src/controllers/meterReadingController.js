@@ -25,7 +25,15 @@ const meterReadingController = {
       next(error);
     }
   },
-
+  getMeterReadingsByMonthYear: async (req, res, next) => {
+    try {
+      const {roomId, month, year } = req.params;  
+      const readings = await meterReadingService.getMeterReadingByRoomAndMonth(parseInt(roomId, 10), parseInt(month, 10), parseInt(year, 10));
+      res.json(readings);
+    } catch (error) {
+      next(error);
+    }
+  },
   createMeterReading: async (req, res, next) => {
     try {
       const reading = await meterReadingService.createMeterReading(req.body);
@@ -37,7 +45,13 @@ const meterReadingController = {
 
   updateMeterReading: async (req, res, next) => {
     try {
-      const reading = await meterReadingService.updateMeterReading(req.readingId, req.body);
+      const { roomId, month, year } = req.params;
+      const reading = await meterReadingService.updateMeterReading(
+        parseInt(roomId, 10),
+        parseInt(month, 10),
+        parseInt(year, 10),
+        req.body
+      );
       res.json(reading);
     } catch (error) {
       next(error);

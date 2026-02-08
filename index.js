@@ -13,6 +13,7 @@ const monthlyContractRoutes = require('./src/routes/monthlyContract');
 const invoiceRoutes = require('./src/routes/invoice');
 const paymentRoutes = require('./src/routes/payment');
 const meterReadingRoutes = require('./src/routes/meterReading');
+const moveOutSettlementRoutes = require('./src/routes/moveOutSettlement');
 const errorHandler = require('./src/middleware/errorHandler');
 const config = require('./src/config/server');
 
@@ -57,6 +58,7 @@ app.use('/api/monthly-contracts', monthlyContractRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/meter-readings', meterReadingRoutes);
+app.use('/api/move-out-settlements', moveOutSettlementRoutes);
 
 /**
  * 404 Handler

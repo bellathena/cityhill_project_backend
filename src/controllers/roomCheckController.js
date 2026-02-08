@@ -9,10 +9,9 @@ const roomCheckController = {
   // GET /api/room-checks - Get all room checks
   getAllRoomChecks: asyncHandler(async (req, res) => {
     const data = await roomCheckService.getAllRoomChecks();
-    res.json({
-      success: true,
+    res.json(
       data
-    });
+    );
   }),
 
   // GET /api/room-checks/:id - Get room check by ID
@@ -26,10 +25,9 @@ const roomCheckController = {
       throw error;
     }
 
-    res.json({
-      success: true,
+    res.json(
       data
-    });
+    );
   }),
 
   // GET /api/room-checks/booking/:bookingId - Get checks by daily booking
@@ -38,10 +36,9 @@ const roomCheckController = {
 
     const data = await roomCheckService.getRoomChecksByReference(parseInt(bookingId), null);
 
-    res.json({
-      success: true,
+    res.json(
       data
-    });
+    );
   }),
 
   // GET /api/room-checks/contract/:contractId - Get checks by monthly contract
@@ -50,10 +47,9 @@ const roomCheckController = {
 
     const data = await roomCheckService.getRoomChecksByReference(null, parseInt(contractId));
 
-    res.json({
-      success: true,
+    res.json(
       data
-    });
+    );
   }),
 
   // POST /api/room-checks - Create room check
@@ -85,10 +81,9 @@ const roomCheckController = {
       evidencePhotos
     });
 
-    res.status(201).json({
-      success: true,
+    res.status(201).json(
       data
-    });
+    );
   }),
 
   // PUT /api/room-checks/:id - Update room check

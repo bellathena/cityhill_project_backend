@@ -20,8 +20,9 @@ const validateReadingId = (req, res, next) => {
 
 router.get('/', asyncHandler(meterReadingController.getAllMeterReadings));
 router.get('/:id', validateReadingId, asyncHandler(meterReadingController.getMeterReadingById));
+router.get('/room/:roomId/:month/:year', asyncHandler(meterReadingController.getMeterReadingsByMonthYear));
 router.post('/', asyncHandler(meterReadingController.createMeterReading));
-router.put('/:id', validateReadingId, asyncHandler(meterReadingController.updateMeterReading));
+router.put('/room/:roomId/:month/:year', asyncHandler(meterReadingController.updateMeterReading));
 router.delete('/:id', validateReadingId, asyncHandler(meterReadingController.deleteMeterReading));
 
 module.exports = router;
