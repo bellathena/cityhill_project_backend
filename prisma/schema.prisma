@@ -1,0 +1,302 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+
+}
+
+// ====== ENUMS ======
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+  RECEPTIONIST
+}
+
+enum AllowedType {
+  MONTHLY       // 1
+  DAILY         // 2
+  FLEXIBLE      // 3
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED_M    // Occupied Monthly
+  OCCUPIED_D    // Occupied Daily
+  RESERVED
+  MAINTENANCE
+}
+
+enum BookingStatus {
+  CONFIRMED
+  STAYED
+  CANCELLED
+  CHECKED_OUT
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum ContractStatus {
+  ACTIVE
+  NOTICE
+  CLOSED
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  BOOKED
+  OCCUPIED
+}
+
+enum CheckType {
+  CHECK_IN
+  CHECK_OUT
+}
+
+enum ConditionStatus {
+  NORMAL
+  DAMAGED
+  DIRTY
+  MISSING
+}
+
+enum RefundStatus {
+  PENDING
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  CREDIT_CARD
+}
+
+// ====== MODELS ======
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  fullName  String
+  role      UserRole @default(STAFF)
+  phone     String?
+  email     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model RoomType {
+  id                Int     @id @default(autoincrement())
+  typeName          String  @unique
+  description       String?
+  baseMonthlyRate   Int
+  baseDailyRate     Int
+  rooms             Room[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("room_types")
+}
+
+model Room {
+  id                  Int                @id @default(autoincrement())
+  roomNumber          String             @unique
+  floor               Decimal            @db.Decimal(10, 2)
+  typeId              Int
+  roomType            RoomType           @relation(fields: [typeId], references: [id])
+  allowedType         AllowedType        @default(FLEXIBLE)
+  currentStatus       RoomStatus         @default(AVAILABLE)
+  latestMeterElectric Int?
+  latestMeterWater    Int?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  dailyBookings       DailyBooking[]
+  monthlyContracts    MonthlyContract[]
+  availability        RoomAvailability[]
+  meterReadings       MeterReading[]
+
+  @@map("rooms")
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  citizenId String   @unique
+  address   String?
+  phone     String
+  carLicense String?
+  customerImage String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  dailyBookings    DailyBooking[]
+  monthlyContracts MonthlyContract[]
+
+  @@map("customers")
+}
+
+model DailyBooking {
+  id             Int      @id @default(autoincrement())
+  customerId     Int
+  customer       Customer @relation(fields: [customerId], references: [id])
+  roomId         Int
+  room           Room     @relation(fields: [roomId], references: [id])
+  checkInDate    DateTime @db.Date
+  checkOutDate   DateTime @db.Date
+  numGuests      Int?
+  extraBedCount  Int?
+  totalAmount    Decimal  @db.Decimal(10, 2)
+  bookingStatus  BookingStatus @default(CONFIRMED)
+  paymentStatus  PaymentStatus @default(PENDING)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  invoices       Invoice[] @relation("DailyBookingInvoices")
+  checks_daily   RoomCheck[] @relation("DailyBookingChecks")
+
+  @@map("daily_bookings")
+}
+
+model MonthlyContract {
+  id              Int      @id @default(autoincrement())
+  customerId      Int
+  customer        Customer @relation(fields: [customerId], references: [id])
+  roomId          Int
+  room            Room     @relation(fields: [roomId], references: [id])
+  startDate       DateTime @db.Date
+  endDate         DateTime? @db.Date
+  depositAmount   Int
+  advancePayment  Int
+  monthlyRentRate Int
+  contractStatus  ContractStatus @default(ACTIVE)
+  contractFile    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  invoices        Invoice[] @relation("MonthlyContractInvoices")
+  checks_contract RoomCheck[] @relation("MonthlyContractChecks")
+  moveOutSettlement MoveOutSettlement?
+
+  @@map("monthly_contracts")
+}
+
+model RoomAvailability {
+  id           Int                @id @default(autoincrement())
+  roomId       Int
+  room         Room               @relation(fields: [roomId], references: [id])
+  checkDate    DateTime           @db.Date
+  referenceId  Int?
+  refType      String?            // "Daily" or "Monthly"
+  status       AvailabilityStatus @default(AVAILABLE)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@unique([roomId, checkDate])
+  @@map("room_availability")
+}
+
+model RoomCheck {
+  id                 Int      @id @default(autoincrement())
+  referenceId        Int
+  refType            String   // "Daily" or "Monthly"
+  checkType          CheckType
+  conditionBed       ConditionStatus?
+  conditionAir       ConditionStatus?
+  conditionBathroom  ConditionStatus?
+  conditionLights    ConditionStatus?
+  notes              String?  @db.Text
+  evidencePhotos     String?
+  createdAt          DateTime @default(now())
+
+  // Relations
+  dailyBooking       DailyBooking?  @relation("DailyBookingChecks", fields: [referenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_daily_booking_check")
+  monthlyContract    MonthlyContract? @relation("MonthlyContractChecks", fields: [referenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_monthly_contract_check")
+
+  @@map("room_checks")
+}
+
+model MeterReading {
+  id                Int      @id @default(autoincrement())
+  roomId            Int
+  room              Room     @relation(fields: [roomId], references: [id])
+  month             Int
+  year              Int
+  previousElectric  Decimal  @db.Decimal(10, 2)
+  currentElectric   Decimal  @db.Decimal(10, 2)
+  previousWater     Decimal  @db.Decimal(10, 2)
+  currentWater      Decimal  @db.Decimal(10, 2)
+  readingDate       DateTime @db.Date
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([roomId, month, year])
+  @@map("meter_readings")
+}
+
+model Invoice {
+  id              Int      @id @default(autoincrement())
+  referenceId     Int
+  refType         String   // "Daily" or "Monthly"
+  invoiceDate     DateTime @db.Date
+  dueDate         DateTime @db.Date
+  rentAmount      Decimal  @db.Decimal(10, 2)
+  electricFee     Decimal? @db.Decimal(10, 2)
+  waterFee        Decimal? @db.Decimal(10, 2)
+  serviceFee      Decimal? @db.Decimal(10, 2)
+  discount        Decimal? @db.Decimal(10, 2)
+  grandTotal      Decimal  @db.Decimal(10, 2)
+  paymentStatus   PaymentStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  dailyBooking    DailyBooking?  @relation("DailyBookingInvoices", fields: [referenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_daily_booking_invoice")
+  monthlyContract MonthlyContract? @relation("MonthlyContractInvoices", fields: [referenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_monthly_contract_invoice")
+  payments        Payment[]
+
+  @@map("invoices")
+}
+
+model Payment {
+  id            Int      @id @default(autoincrement())
+  invoiceId     Int
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  paymentDate   DateTime @default(now())
+  paymentMethod PaymentMethod
+  amountPaid    Decimal  @db.Decimal(10, 2)
+  slipImage     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("payments")
+}
+
+model MoveOutSettlement {
+  id                  Int      @id @default(autoincrement())
+  contractId          Int      @unique
+  contract            MonthlyContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  moveOutDate         DateTime @db.Date
+  totalDeposit        Decimal  @db.Decimal(10, 2)
+  damageDeduction     Decimal? @db.Decimal(10, 2)
+  cleaningFee         Decimal? @db.Decimal(10, 2)
+  outstandingBalance  Decimal? @db.Decimal(10, 2)
+  netRefund           Decimal  @db.Decimal(10, 2)
+  refundStatus        RefundStatus @default(PENDING)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("move_out_settlements")
+}
