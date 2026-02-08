@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-
+  url      = env("DATABASE_URL")
 }
 
 // ====== ENUMS ======
@@ -150,9 +150,9 @@ model Customer {
 model DailyBooking {
   id             Int      @id @default(autoincrement())
   customerId     Int
-  customer       Customer @relation(fields: [customerId], references: [id])
+  customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   roomId         Int
-  room           Room     @relation(fields: [roomId], references: [id])
+  room           Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   checkInDate    DateTime @db.Date
   checkOutDate   DateTime @db.Date
   numGuests      Int?
@@ -172,9 +172,9 @@ model DailyBooking {
 model MonthlyContract {
   id              Int      @id @default(autoincrement())
   customerId      Int
-  customer        Customer @relation(fields: [customerId], references: [id])
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   roomId          Int
-  room            Room     @relation(fields: [roomId], references: [id])
+  room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
   startDate       DateTime @db.Date
   endDate         DateTime? @db.Date
   depositAmount   Int
@@ -195,7 +195,7 @@ model MonthlyContract {
 model RoomAvailability {
   id           Int                @id @default(autoincrement())
   roomId       Int
-  room         Room               @relation(fields: [roomId], references: [id])
+  room         Room               @relation(fields: [roomId], references: [id], onDelete: Cascade)
   checkDate    DateTime           @db.Date
   referenceId  Int?
   refType      String?            // "Daily" or "Monthly"
@@ -209,8 +209,8 @@ model RoomAvailability {
 
 model RoomCheck {
   id                 Int      @id @default(autoincrement())
-  referenceId        Int
-  refType            String   // "Daily" or "Monthly"
+  dailyBookingId     Int?
+  monthlyContractId  Int?
   checkType          CheckType
   conditionBed       ConditionStatus?
   conditionAir       ConditionStatus?
@@ -221,8 +221,8 @@ model RoomCheck {
   createdAt          DateTime @default(now())
 
   // Relations
-  dailyBooking       DailyBooking?  @relation("DailyBookingChecks", fields: [referenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_daily_booking_check")
-  monthlyContract    MonthlyContract? @relation("MonthlyContractChecks", fields: [referenceId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "fk_monthly_contract_check")
+  dailyBooking       DailyBooking?  @relation("DailyBookingChecks", fields: [dailyBookingId], references: [id], onDelete: Cascade, map: "fk_daily_booking_check")
+  monthlyContract    MonthlyContract? @relation("MonthlyContractChecks", fields: [monthlyContractId], references: [id], onDelete: Cascade, map: "fk_monthly_contract_check")
 
   @@map("room_checks")
 }

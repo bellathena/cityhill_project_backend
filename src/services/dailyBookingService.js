@@ -29,19 +29,64 @@ const dailyBookingService = {
   },
 
   createDailyBooking: async (data) => {
-    return await prisma.dailyBooking.create({
-      data: {
-        customerId: parseInt(data.customerId),
-        roomId: parseInt(data.roomId),
-        checkInDate: new Date(data.checkInDate),
-        checkOutDate: new Date(data.checkOutDate),
-        numGuests: data.numGuests ? parseInt(data.numGuests) : null,
-        extraBedCount: data.extraBedCount ? parseInt(data.extraBedCount) : null,
-        totalAmount: parseFloat(data.totalAmount),
-        bookingStatus: data.bookingStatus || 'CONFIRMED',
-        paymentStatus: data.paymentStatus || 'PENDING'
+    const roomId = parseInt(data.roomId);
+    const checkInDate = new Date(data.checkInDate);
+    const checkOutDate = new Date(data.checkOutDate);
+
+    // Use transaction to create both DailyBooking and RoomAvailability records
+    const booking = await prisma.$transaction(async (tx) => {
+      // Create DailyBooking
+      const dailyBooking = await tx.dailyBooking.create({
+        data: {
+          customerId: parseInt(data.customerId),
+          roomId: roomId,
+          checkInDate: checkInDate,
+          checkOutDate: checkOutDate,
+          numGuests: data.numGuests ? parseInt(data.numGuests) : null,
+          extraBedCount: data.extraBedCount ? parseInt(data.extraBedCount) : null,
+          totalAmount: parseFloat(data.totalAmount),
+          bookingStatus: data.bookingStatus || 'CONFIRMED',
+          paymentStatus: data.paymentStatus || 'PENDING'
+        }
+      });
+
+      // Create RoomAvailability records for each day in the booking period
+      const currentDate = new Date(checkInDate);
+      const availabilityRecords = [];
+      
+      while (currentDate < checkOutDate) {
+        availabilityRecords.push({
+          roomId: roomId,
+          checkDate: new Date(currentDate),
+          referenceId: dailyBooking.id,
+          refType: 'Daily',
+          status: 'BOOKED'
+        });
+        currentDate.setDate(currentDate.getDate() + 1);
       }
+
+      // Upsert availability records (create or update if exists)
+      for (const record of availabilityRecords) {
+        await tx.roomAvailability.upsert({
+          where: {
+            roomId_checkDate: {
+              roomId: record.roomId,
+              checkDate: record.checkDate
+            }
+          },
+          create: record,
+          update: {
+            referenceId: record.referenceId,
+            refType: record.refType,
+            status: record.status
+          }
+        });
+      }
+
+      return dailyBooking;
     });
+
+    return booking;
   },
 
   updateDailyBooking: async (id, data) => {
@@ -71,8 +116,31 @@ const dailyBookingService = {
   },
 
   deleteDailyBooking: async (id) => {
-    return await prisma.dailyBooking.delete({
+    
+    const booking = await prisma.dailyBooking.findUnique({
       where: { id }
+    });
+
+    if (!booking) {
+      const error = new Error('Daily booking not found');
+      error.status = 404;
+      throw error;
+    }
+
+    // Use transaction to delete booking and update RoomAvailability
+    return await prisma.$transaction(async (tx) => {
+      // Delete the DailyBooking
+      await tx.dailyBooking.delete({
+        where: { id }
+      });
+
+      // Delete RoomAvailability records for this booking
+      await tx.roomAvailability.deleteMany({
+        where: {
+          referenceId: id,
+          refType: 'Daily'
+        }
+      });
     });
   }
 };

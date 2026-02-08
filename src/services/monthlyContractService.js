@@ -31,19 +31,65 @@ const monthlyContractService = {
   },
 
   createMonthlyContract: async (data) => {
-    return await prisma.monthlyContract.create({
-      data: {
-        customerId: parseInt(data.customerId),
-        roomId: parseInt(data.roomId),
-        startDate: new Date(data.startDate),
-        endDate: data.endDate ? new Date(data.endDate) : null,
-        depositAmount: parseInt(data.depositAmount),
-        advancePayment: parseInt(data.advancePayment),
-        monthlyRentRate: parseInt(data.monthlyRentRate),
-        contractStatus: data.contractStatus || 'ACTIVE',
-        contractFile: data.contractFile
+    const roomId = parseInt(data.roomId);
+    const startDate = new Date(data.startDate);
+    const endDate = data.endDate ? new Date(data.endDate) : null;
+
+    // Use transaction to create both MonthlyContract and RoomAvailability records
+    const contract = await prisma.$transaction(async (tx) => {
+      // Create MonthlyContract
+      const monthlyContract = await tx.monthlyContract.create({
+        data: {
+          customerId: parseInt(data.customerId),
+          roomId: roomId,
+          startDate: startDate,
+          endDate: endDate,
+          depositAmount: parseInt(data.depositAmount),
+          advancePayment: parseInt(data.advancePayment),
+          monthlyRentRate: parseInt(data.monthlyRentRate),
+          contractStatus: data.contractStatus || 'ACTIVE',
+          contractFile: data.contractFile
+        }
+      });
+
+      // Create RoomAvailability records for each day in the contract period
+      const currentDate = new Date(startDate);
+      const contractEnd = endDate || new Date(startDate.getFullYear(), startDate.getMonth() + 12, startDate.getDate());
+      const availabilityRecords = [];
+      
+      while (currentDate < contractEnd) {
+        availabilityRecords.push({
+          roomId: roomId,
+          checkDate: new Date(currentDate),
+          referenceId: monthlyContract.id,
+          refType: 'Monthly',
+          status: 'OCCUPIED'
+        });
+        currentDate.setDate(currentDate.getDate() + 1);
       }
+
+      // Upsert availability records (create or update if exists)
+      for (const record of availabilityRecords) {
+        await tx.roomAvailability.upsert({
+          where: {
+            roomId_checkDate: {
+              roomId: record.roomId,
+              checkDate: record.checkDate
+            }
+          },
+          create: record,
+          update: {
+            referenceId: record.referenceId,
+            refType: record.refType,
+            status: record.status
+          }
+        });
+      }
+
+      return monthlyContract;
     });
+
+    return contract;
   },
 
   updateMonthlyContract: async (id, data) => {
@@ -73,8 +119,31 @@ const monthlyContractService = {
   },
 
   deleteMonthlyContract: async (id) => {
-    return await prisma.monthlyContract.delete({
+    // Get the contract first to know which dates to clean up
+    const contract = await prisma.monthlyContract.findUnique({
       where: { id }
+    });
+
+    if (!contract) {
+      const error = new Error('Monthly contract not found');
+      error.status = 404;
+      throw error;
+    }
+
+    // Use transaction to delete contract and update RoomAvailability
+    return await prisma.$transaction(async (tx) => {
+      // Delete the MonthlyContract
+      await tx.monthlyContract.delete({
+        where: { id }
+      });
+
+      // Delete RoomAvailability records for this contract
+      await tx.roomAvailability.deleteMany({
+        where: {
+          referenceId: id,
+          refType: 'Monthly'
+        }
+      });
     });
   }
 };
