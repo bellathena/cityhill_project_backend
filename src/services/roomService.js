@@ -78,7 +78,7 @@ const roomService = {
    * Update a room
    */
   updateRoom: async (id, data) => {
-    // Build update object with only provided fields
+
     const updateData = {};
     
     if (data.roomNumber !== undefined) updateData.roomNumber = data.roomNumber;

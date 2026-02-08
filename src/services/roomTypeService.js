@@ -23,6 +23,7 @@ const roomTypeService = {
   },
 
   createRoomType: async (data) => {
+
     return await prisma.roomType.create({
       data: {
         typeName: data.typeName,
@@ -31,10 +32,10 @@ const roomTypeService = {
         baseDailyRate: parseInt(data.baseDailyRate)
       }
     });
+
   },
 
   updateRoomType: async (id, data) => {
-    // Build update object with only provided fields
     const updateData = {};
     
     if (data.typeName !== undefined) updateData.typeName = data.typeName;
@@ -42,7 +43,7 @@ const roomTypeService = {
     if (data.baseMonthlyRate !== undefined) updateData.baseMonthlyRate = parseInt(data.baseMonthlyRate);
     if (data.baseDailyRate !== undefined) updateData.baseDailyRate = parseInt(data.baseDailyRate);
 
-    // Don't update if no fields provided
+  
     if (Object.keys(updateData).length === 0) {
       const error = new Error('No fields to update');
       error.status = 400;

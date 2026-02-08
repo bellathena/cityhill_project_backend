@@ -20,7 +20,7 @@ router.get('/:id', validateRoomId, asyncHandler(roomController.getRoomById));
 router.post('/', validateRoom, asyncHandler(roomController.createRoom));
 
 // PUT /api/rooms/:id - Update room
-router.put('/:id', validateRoomId, validateRoom, asyncHandler(roomController.updateRoom));
+router.put('/:id', validateRoomId, asyncHandler(roomController.updateRoom));
 
 // DELETE /api/rooms/:id - Delete room
 router.delete('/:id', validateRoomId, asyncHandler(roomController.deleteRoom));

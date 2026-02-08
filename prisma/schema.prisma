@@ -14,9 +14,7 @@ datasource db {
 
 enum UserRole {
   ADMIN
-  MANAGER
   STAFF
-  RECEPTIONIST
 }
 
 enum AllowedType {
@@ -116,6 +114,7 @@ model Room {
   floor               Decimal            @db.Decimal(10, 2)
   typeId              Int
   roomType            RoomType           @relation(fields: [typeId], references: [id])
+  //from enum AllowedType and currentStatus
   allowedType         AllowedType        @default(FLEXIBLE)
   currentStatus       RoomStatus         @default(AVAILABLE)
   latestMeterElectric Int?

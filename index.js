@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const authRoutes = require('./src/routes/auth');
+const userRoutes = require('./src/routes/user');
 const roomRoutes = require('./src/routes/room');
 const roomTypeRoutes = require('./src/routes/roomType');
 const customerRoutes = require('./src/routes/customer');
@@ -41,6 +43,8 @@ app.get('/health', (req, res) => {
 /**
  * API Routes
  */
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/room-types', roomTypeRoutes);
 app.use('/api/customers', customerRoutes);
