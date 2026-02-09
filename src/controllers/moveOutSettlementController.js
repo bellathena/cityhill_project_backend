@@ -9,10 +9,9 @@ const moveOutSettlementController = {
   // GET /api/move-out-settlements - Get all settlements
   getAllSettlements: asyncHandler(async (req, res) => {
     const data = await moveOutSettlementService.getAllSettlements();
-    res.json({
-      success: true,
+    res.json(
       data
-    });
+    );
   }),
 
   // GET /api/move-out-settlements/:id - Get settlement by ID
@@ -26,10 +25,9 @@ const moveOutSettlementController = {
       throw error;
     }
 
-    res.json({
-      success: true,
+    res.json(
       data
-    });
+    );
   }),
 
   // GET /api/move-out-settlements/contract/:contractId - Get settlement by contract ID
@@ -43,10 +41,9 @@ const moveOutSettlementController = {
       throw error;
     }
 
-    res.json({
-      success: true,
+    res.json(
       data
-    });
+    );
   }),
 
   // POST /api/move-out-settlements - Create settlement
@@ -71,10 +68,9 @@ const moveOutSettlementController = {
       refundStatus
     });
 
-    res.status(201).json({
-      success: true,
+    res.status(201).json(
       data
-    });
+    );
   }),
 
   // PUT /api/move-out-settlements/:id - Update settlement

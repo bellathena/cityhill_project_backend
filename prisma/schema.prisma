@@ -32,7 +32,7 @@ enum RoomStatus {
 }
 
 enum BookingStatus {
-  CONFIRMED
+  PENDING
   STAYED
   CANCELLED
   CHECKED_OUT
@@ -45,6 +45,7 @@ enum PaymentStatus {
 }
 
 enum ContractStatus {
+  PENDING
   ACTIVE
   NOTICE
   CLOSED
@@ -158,7 +159,7 @@ model DailyBooking {
   numGuests      Int?
   extraBedCount  Int?
   totalAmount    Decimal  @db.Decimal(10, 2)
-  bookingStatus  BookingStatus @default(CONFIRMED)
+  bookingStatus  BookingStatus @default(PENDING)
   paymentStatus  PaymentStatus @default(PENDING)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -180,7 +181,7 @@ model MonthlyContract {
   depositAmount   Int
   advancePayment  Int
   monthlyRentRate Int
-  contractStatus  ContractStatus @default(ACTIVE)
+  contractStatus  ContractStatus @default(PENDING)
   contractFile    String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -225,6 +226,17 @@ model RoomCheck {
   monthlyContract    MonthlyContract? @relation("MonthlyContractChecks", fields: [monthlyContractId], references: [id], onDelete: Cascade, map: "fk_monthly_contract_check")
 
   @@map("room_checks")
+}
+
+model UtilityRate {
+  id                Int      @id @default(autoincrement())
+  electricityRate   Decimal  @db.Decimal(10, 2) 
+  waterRate         Decimal  @db.Decimal(10, 2) 
+  effectiveDate     DateTime @db.Date
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("utility_rates")
 }
 
 model MeterReading {

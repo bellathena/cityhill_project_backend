@@ -1,13 +1,7 @@
+const jwt = require('jsonwebtoken');
 const authService = require('../services/authService');
 
-/**
- * Authentication Controller
- */
-
 const authController = {
-  /**
-   * Login endpoint
-   */
   login: async (req, res, next) => {
     try {
       const { username, password } = req.body;
@@ -17,11 +11,28 @@ const authController = {
       }
 
       const user = await authService.login(username, password);
-      
-      // TODO: Add JWT token generation here
+
+      // สร้าง JWT
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          username: user.username,
+          fullName: user.fullName,
+          role: user.role
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+
       res.json({
         message: 'Login successful',
-        user
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          fullName: user.fullName,
+          role: user.role
+        }
       });
     } catch (error) {
       next(error);
