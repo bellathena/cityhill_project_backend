@@ -1,91 +1,79 @@
 const prisma = require('../utils/prisma');
 
-/**
- * Room Service - Contains all room business logic
- */
-
 const roomService = {
-  /**
-   * Get all rooms with active bookings/contracts
-   */
   getAllRooms: async () => {
     return await prisma.room.findMany({
       orderBy: { roomNumber: 'asc' },
       include: {
         roomType: true,
         dailyBookings: {
+          include: { customer: true }
+        },
+        monthlyContracts: {
+          where: { contractStatus: 'ACTIVE' },
           include: {
             customer: true,
             invoices: true
           }
         },
+        utilityUsages: true
+      }
+    });
+  },
+
+  getRoomById: async (roomNumber) => {
+    return await prisma.room.findUnique({
+      where: { roomNumber },
+      include: {
+        roomType: true,
+        dailyBookings: {
+          include: { customer: true }
+        },
         monthlyContracts: {
-          where: {
-            contractStatus: 'ACTIVE'
-          },
           include: {
             customer: true,
-            invoices: true
+            invoices: true,
+            moveOutSettlement: true
           }
+        },
+        utilityUsages: {
+          include: { utilityType: true }
         }
       }
     });
   },
 
-  /**
-   * Get a specific room by ID
-   */
-  getRoomById: async (id) => {
-    return await prisma.room.findUnique({
-      where: { id },
-      include: {
-        roomType: true,
-        dailyBookings: {
-          include: {
-            customer: true,
-            invoices: true,
-            checks_daily: true
-          }
-        },
-        monthlyContracts: {
-          include: {
-            customer: true,
-            invoices: true,
-            checks_contract: true
-          }
-        },
-        meterReadings: true
-      }
-    });
-  },
-
-  /**
-   * Create a new room
-   */
   createRoom: async (data) => {
-    return await prisma.room.create({
-      data: {
-        roomNumber: data.roomNumber,
-        floor: parseFloat(data.floor),
-        typeId: parseInt(data.typeId),
-        allowedType: data.allowedType || 'FLEXIBLE',
-        currentStatus: data.currentStatus || 'AVAILABLE'
+    try {
+      return await prisma.room.create({
+        data: {
+          roomNumber: parseInt(data.roomNumber),
+          floor: parseFloat(data.floor),
+          typeId: parseInt(data.typeId),
+          allowedType: data.allowedType || 'FLEXIBLE',
+          currentStatus: data.currentStatus || 'AVAILABLE'
+        }
+      });
+    } catch (err) {
+      if (err.code === 'P2002') {
+        const error = new Error('ห้องนี้มีอยู่แล้ว');
+        error.status = 400;
+        throw error;
       }
-    });
+
+      throw err;
+    }
   },
 
-  /**
-   * Update a room
-   */
-  updateRoom: async (id, data) => {
-
+  updateRoom: async (roomNumber, data) => {
     const updateData = {};
-    
-    if (data.roomNumber !== undefined) updateData.roomNumber = data.roomNumber;
+
     if (data.floor !== undefined) updateData.floor = parseFloat(data.floor);
     if (data.typeId !== undefined) updateData.typeId = parseInt(data.typeId);
     if (data.allowedType !== undefined) updateData.allowedType = data.allowedType;
     if (data.currentStatus !== undefined) updateData.currentStatus = data.currentStatus;
+    if (data.latestMeterElectric !== undefined) updateData.latestMeterElectric = parseInt(data.latestMeterElectric);
+    if (data.latestMeterWater !== undefined) updateData.latestMeterWater = parseInt(data.latestMeterWater);
 
     if (Object.keys(updateData).length === 0) {
       const error = new Error('No fields to update');
@@ -94,29 +82,18 @@ const roomService = {
     }
 
     return await prisma.room.update({
-      where: { id },
+      where: { roomNumber },
       data: updateData
     });
   },
 
-  /**
-   * Delete a room (only if no active bookings/contracts)
-   */
-  deleteRoom: async (id) => {
-    // Check for active daily bookings
+  deleteRoom: async (roomNumber) => {
     const activeDailyBookings = await prisma.dailyBooking.findMany({
-      where: {
-        roomId: id,
-        bookingStatus: 'CONFIRMED'
-      }
+      where: { roomId: roomNumber, bookingStatus: 'STAYED' }
     });
 
-    // Check for active monthly contracts
     const activeContracts = await prisma.monthlyContract.findMany({
-      where: {
-        roomId: id,
-        contractStatus: 'ACTIVE'
-      }
+      where: { roomId: roomNumber, contractStatus: 'ACTIVE' }
     });
 
     if (activeDailyBookings.length > 0 || activeContracts.length > 0) {
@@ -126,7 +103,7 @@ const roomService = {
     }
 
     return await prisma.room.delete({
-      where: { id }
+      where: { roomNumber }
     });
   }
 };

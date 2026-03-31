@@ -23,7 +23,11 @@ const roomTypeService = {
   },
 
   createRoomType: async (data) => {
-
+    if(!data.typeName || !data.baseMonthlyRate || !data.baseDailyRate) {
+      const error = new Error('typeName, baseMonthlyRate, and baseDailyRate are required');
+      error.status = 400;
+      throw error;
+    } 
     return await prisma.roomType.create({
       data: {
         typeName: data.typeName,

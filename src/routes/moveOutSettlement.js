@@ -12,6 +12,9 @@ router.get('/', moveOutSettlementController.getAllSettlements);
 // GET settlement by contract ID
 router.get('/contract/:contractId', moveOutSettlementController.getSettlementByContractId);
 
+// GET outstanding balance by contract ID
+router.get('/outstanding/:contractId', moveOutSettlementController.getOutstandingBalanceByContractId);
+
 // GET settlement by ID
 router.get('/:id', moveOutSettlementController.getSettlementById);
 

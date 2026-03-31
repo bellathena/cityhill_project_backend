@@ -1,13 +1,6 @@
 const roomService = require('../services/roomService');
 
-/**
- * Room Controller - Handles request/response for room endpoints
- */
-
 const roomController = {
-  /**
-   * GET /api/rooms - Get all rooms
-   */
   getAllRooms: async (req, res, next) => {
     try {
       const rooms = await roomService.getAllRooms();
@@ -17,26 +10,18 @@ const roomController = {
     }
   },
 
-  /**
-   * GET /api/rooms/:id - Get room by ID
-   */
   getRoomById: async (req, res, next) => {
     try {
       const room = await roomService.getRoomById(req.roomId);
-
       if (!room) {
         return res.status(404).json({ error: 'Room not found' });
       }
-
       res.json(room);
     } catch (error) {
       next(error);
     }
   },
 
-  /**
-   * POST /api/rooms - Create new room
-   */
   createRoom: async (req, res, next) => {
     try {
       const room = await roomService.createRoom(req.body);
@@ -46,9 +31,6 @@ const roomController = {
     }
   },
 
-  /**
-   * PUT /api/rooms/:id - Update room
-   */
   updateRoom: async (req, res, next) => {
     try {
       const room = await roomService.updateRoom(req.roomId, req.body);
@@ -58,9 +40,6 @@ const roomController = {
     }
   },
 
-  /**
-   * DELETE /api/rooms/:id - Delete room
-   */
   deleteRoom: async (req, res, next) => {
     try {
       await roomService.deleteRoom(req.roomId);

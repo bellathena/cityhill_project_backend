@@ -1,17 +1,11 @@
 const prisma = require('../utils/prisma');
 
-/**
- * DailyBooking Service
- */
-
 const dailyBookingService = {
   getAllDailyBookings: async () => {
     return await prisma.dailyBooking.findMany({
       include: {
         customer: true,
-        room: true,
-        invoices: true,
-        checks_daily: true
+        room: true
       }
     });
   },
@@ -21,9 +15,7 @@ const dailyBookingService = {
       where: { id },
       include: {
         customer: true,
-        room: true,
-        invoices: true,
-        checks_daily: true
+        room: true
       }
     });
   },
@@ -33,9 +25,7 @@ const dailyBookingService = {
     const checkInDate = new Date(data.checkInDate);
     const checkOutDate = new Date(data.checkOutDate);
 
-    // Use transaction to create both DailyBooking and RoomAvailability records
-    const booking = await prisma.$transaction(async (tx) => {
-      // Create DailyBooking
+    return await prisma.$transaction(async (tx) => {
       const dailyBooking = await tx.dailyBooking.create({
         data: {
           customerId: parseInt(data.customerId),
@@ -45,54 +35,33 @@ const dailyBookingService = {
           numGuests: data.numGuests ? parseInt(data.numGuests) : null,
           extraBedCount: data.extraBedCount ? parseInt(data.extraBedCount) : null,
           totalAmount: parseFloat(data.totalAmount),
-          bookingStatus: data.bookingStatus || 'CONFIRMED',
+          bookingStatus: "STAYED",
           paymentStatus: data.paymentStatus || 'PENDING'
         }
       });
 
-      // Create RoomAvailability records for each day in the booking period
-      const currentDate = new Date(checkInDate);
-      const availabilityRecords = [];
-      
-      while (currentDate < checkOutDate) {
-        availabilityRecords.push({
-          roomId: roomId,
-          checkDate: new Date(currentDate),
-          referenceId: dailyBooking.id,
-          refType: 'Daily',
-          status: 'BOOKED'
-        });
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-
-      // Upsert availability records (create or update if exists)
-      for (const record of availabilityRecords) {
-        await tx.roomAvailability.upsert({
-          where: {
-            roomId_checkDate: {
-              roomId: record.roomId,
-              checkDate: record.checkDate
-            }
-          },
-          create: record,
-          update: {
-            referenceId: record.referenceId,
-            refType: record.refType,
-            status: record.status
-          }
-        });
-      }
+      await tx.room.update({
+        where: { roomNumber: roomId },
+        data: { currentStatus: 'OCCUPIED_D' }
+      });
 
       return dailyBooking;
     });
-
-    return booking;
   },
 
   updateDailyBooking: async (id, data) => {
-    // Build update object with only provided fields
+    const currentBooking = await prisma.dailyBooking.findUnique({
+      where: { id }
+    });
+
+    if (!currentBooking) {
+      const error = new Error('Daily booking not found');
+      error.status = 404;
+      throw error;
+    }
+
     const updateData = {};
-    
+
     if (data.customerId !== undefined) updateData.customerId = parseInt(data.customerId);
     if (data.roomId !== undefined) updateData.roomId = parseInt(data.roomId);
     if (data.checkInDate !== undefined) updateData.checkInDate = new Date(data.checkInDate);
@@ -109,14 +78,40 @@ const dailyBookingService = {
       throw error;
     }
 
-    return await prisma.dailyBooking.update({
-      where: { id },
-      data: updateData
+    return await prisma.$transaction(async (tx) => {
+      const updatedBooking = await tx.dailyBooking.update({
+        where: { id },
+        data: updateData
+      });
+
+      const roomId = updateData.roomId !== undefined ? updateData.roomId : currentBooking.roomId;
+
+      if (data.bookingStatus === 'CHECKED_OUT') {
+        await tx.room.update({
+          where: { roomNumber: roomId },
+          data: { currentStatus: 'AVAILABLE' }
+        });
+      } else if (data.bookingStatus === 'STAYED') {
+        await tx.room.update({
+          where: { roomNumber: roomId },
+          data: { currentStatus: 'OCCUPIED_D' }
+        });
+      } else if (data.roomId !== undefined && data.roomId !== currentBooking.roomId) {
+        await tx.room.update({
+          where: { roomNumber: parseInt(data.roomId) },
+          data: { currentStatus: 'OCCUPIED_D' }
+        });
+        await tx.room.update({
+          where: { roomNumber: currentBooking.roomId },
+          data: { currentStatus: 'AVAILABLE' }
+        });
+      }
+
+      return updatedBooking;
     });
   },
 
   deleteDailyBooking: async (id) => {
-    
     const booking = await prisma.dailyBooking.findUnique({
       where: { id }
     });
@@ -127,19 +122,12 @@ const dailyBookingService = {
       throw error;
     }
 
-    // Use transaction to delete booking and update RoomAvailability
     return await prisma.$transaction(async (tx) => {
-      // Delete the DailyBooking
-      await tx.dailyBooking.delete({
-        where: { id }
-      });
+      await tx.dailyBooking.delete({ where: { id } });
 
-      // Delete RoomAvailability records for this booking
-      await tx.roomAvailability.deleteMany({
-        where: {
-          referenceId: id,
-          refType: 'Daily'
-        }
+      await tx.room.update({
+        where: { roomNumber: booking.roomId },
+        data: { currentStatus: 'AVAILABLE' }
       });
     });
   }

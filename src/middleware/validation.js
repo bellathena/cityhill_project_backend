@@ -3,18 +3,18 @@
  */
 
 const validateRoom = (req, res, next) => {
-  const { roomNumber, floor, typeId, allowedType, currentStatus } = req.body;
+  const { roomNumber, floor, typeId } = req.body;
 
-  if (!roomNumber || typeof roomNumber !== 'string') {
-    return res.status(400).json({ error: 'roomNumber is required and must be a string' });
+  if (roomNumber === undefined || isNaN(parseInt(roomNumber))) {
+    return res.status(400).json({ error: 'กรุณากรอกหมายเลขห้องและกรอกเป็นตัวเลข' });
   }
 
   if (floor === undefined || (typeof floor !== 'number' && typeof floor !== 'string')) {
-    return res.status(400).json({ error: 'floor is required and must be a number' });
+    return res.status(400).json({ error: 'กรุณากรอกชั้นและกรอกเป็นตัวเลข' });
   }
 
-  if (!typeId || typeof typeId !== 'number') {
-    return res.status(400).json({ error: 'typeId is required and must be a number' });
+  if (!typeId || isNaN(parseInt(typeId))) {
+    return res.status(400).json({ error: 'กรุณาเลือกประเภทห้อง' });
   }
 
   next();
@@ -25,7 +25,7 @@ const validateRoomId = (req, res, next) => {
   const roomId = parseInt(id, 10);
 
   if (isNaN(roomId)) {
-    return res.status(400).json({ error: 'Invalid room ID' });
+    return res.status(400).json({ error: 'Invalid room number' });
   }
 
   req.roomId = roomId;

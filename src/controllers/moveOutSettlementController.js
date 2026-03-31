@@ -46,13 +46,21 @@ const moveOutSettlementController = {
     );
   }),
 
+  // GET /api/move-out-settlements/outstanding/:contractId - Get outstanding balance by contract ID
+  getOutstandingBalanceByContractId: asyncHandler(async (req, res) => {
+    const { contractId } = req.params;
+    const data = await moveOutSettlementService.getOutstandingBalanceByContractId(contractId);
+
+    res.json(data);
+  }),
+
   // POST /api/move-out-settlements - Create settlement
   createSettlement: asyncHandler(async (req, res) => {
     const { contractId, moveOutDate, totalDeposit, damageDeduction, cleaningFee, outstandingBalance, netRefund, refundStatus } = req.body;
 
     // Validate required fields
-    if (!contractId || !moveOutDate || totalDeposit === undefined || netRefund === undefined) {
-      const error = new Error('contractId, moveOutDate, totalDeposit, and netRefund are required');
+    if (!contractId || !moveOutDate || totalDeposit === undefined) {
+      const error = new Error('contractId, moveOutDate, and totalDeposit are required');
       error.status = 400;
       throw error;
     }

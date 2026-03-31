@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -110,8 +111,7 @@ model RoomType {
 }
 
 model Room {
-  id                  Int                @id @default(autoincrement())
-  roomNumber          String             @unique
+  roomNumber          Int        @id 
   floor               Decimal            @db.Decimal(10, 2)
   typeId              Int
   roomType            RoomType           @relation(fields: [typeId], references: [id])
@@ -125,8 +125,7 @@ model Room {
 
   dailyBookings       DailyBooking[]
   monthlyContracts    MonthlyContract[]
-  availability        RoomAvailability[]
-  meterReadings       MeterReading[]
+  utilityUsages       UtilityUsage[]
 
   @@map("rooms")
 }
@@ -153,7 +152,7 @@ model DailyBooking {
   customerId     Int
   customer       Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   roomId         Int
-  room           Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room           Room     @relation(fields: [roomId], references: [roomNumber], onDelete: Cascade)
   checkInDate    DateTime @db.Date
   checkOutDate   DateTime @db.Date
   numGuests      Int?
@@ -164,8 +163,8 @@ model DailyBooking {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  invoices       Invoice[] @relation("DailyBookingInvoices")
-  checks_daily   RoomCheck[] @relation("DailyBookingChecks")
+
+
 
   @@map("daily_bookings")
 }
@@ -175,7 +174,7 @@ model MonthlyContract {
   customerId      Int
   customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   roomId          Int
-  room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room            Room     @relation(fields: [roomId], references: [roomNumber], onDelete: Cascade)
   startDate       DateTime @db.Date
   endDate         DateTime? @db.Date
   depositAmount   Int
@@ -187,94 +186,47 @@ model MonthlyContract {
   updatedAt       DateTime @updatedAt
 
   invoices        Invoice[] @relation("MonthlyContractInvoices")
-  checks_contract RoomCheck[] @relation("MonthlyContractChecks")
   moveOutSettlement MoveOutSettlement?
 
   @@map("monthly_contracts")
 }
 
-model RoomAvailability {
-  id           Int                @id @default(autoincrement())
-  roomId       Int
-  room         Room               @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  checkDate    DateTime           @db.Date
-  referenceId  Int?
-  refType      String?            // "Daily" or "Monthly"
-  status       AvailabilityStatus @default(AVAILABLE)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
 
-  @@unique([roomId, checkDate])
-  @@map("room_availability")
-}
-
-model RoomCheck {
-  id                 Int      @id @default(autoincrement())
-  dailyBookingId     Int?
-  monthlyContractId  Int?
-  checkType          CheckType
-  conditionBed       ConditionStatus?
-  conditionAir       ConditionStatus?
-  conditionBathroom  ConditionStatus?
-  conditionLights    ConditionStatus?
-  notes              String?  @db.Text
-  evidencePhotos     String?
-  createdAt          DateTime @default(now())
-
-  // Relations
-  dailyBooking       DailyBooking?  @relation("DailyBookingChecks", fields: [dailyBookingId], references: [id], onDelete: Cascade, map: "fk_daily_booking_check")
-  monthlyContract    MonthlyContract? @relation("MonthlyContractChecks", fields: [monthlyContractId], references: [id], onDelete: Cascade, map: "fk_monthly_contract_check")
-
-  @@map("room_checks")
-}
-
-model UtilityRate {
+model Utilities {
   id                Int      @id @default(autoincrement())
-  electricityRate   Decimal  @db.Decimal(10, 2) 
-  waterRate         Decimal  @db.Decimal(10, 2) 
-  effectiveDate     DateTime @db.Date
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  uType             String   
+  ratePerUnit       Decimal  @db.Decimal(10, 2) 
+  usages            UtilityUsage[]
 
-  @@map("utility_rates")
+  @@map("utilities")
 }
 
-model MeterReading {
-  id                Int      @id @default(autoincrement())
-  roomId            Int
-  room              Room     @relation(fields: [roomId], references: [id])
-  month             Int
-  year              Int
-  previousElectric  Decimal  @db.Decimal(10, 2)
-  currentElectric   Decimal  @db.Decimal(10, 2)
-  previousWater     Decimal  @db.Decimal(10, 2)
-  currentWater      Decimal  @db.Decimal(10, 2)
-  readingDate       DateTime @db.Date
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+model UtilityUsage {
+  id            Int      @id @default(autoincrement())
+  roomId        Int
+  room          Room     @relation(fields: [roomId], references: [roomNumber], onDelete: Cascade)
+  month         Int
+  year          Int
+  recordDate    DateTime @db.Date
+  utilityUnit   Decimal  @db.Decimal(10, 2)
+  uTypeId       Int
+  utilityType   Utilities @relation(fields: [uTypeId], references: [id], onDelete: Cascade)
 
-  @@unique([roomId, month, year])
-  @@map("meter_readings")
-}
+  @@unique([roomId, uTypeId, month, year])
+  @@map("utility_usages")
+} 
 
 model Invoice {
   id              Int      @id @default(autoincrement())
-  dailyBookingId  Int?
   monthlyContractId Int?
   invoiceDate     DateTime @db.Date
   dueDate         DateTime @db.Date
-  rentAmount      Decimal  @db.Decimal(10, 2)
-  electricFee     Decimal? @db.Decimal(10, 2)
-  waterFee        Decimal? @db.Decimal(10, 2)
-  serviceFee      Decimal? @db.Decimal(10, 2)
-  discount        Decimal? @db.Decimal(10, 2)
   grandTotal      Decimal  @db.Decimal(10, 2)
   paymentStatus   PaymentStatus @default(PENDING)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   // Relations
-  dailyBooking    DailyBooking?  @relation("DailyBookingInvoices", fields: [dailyBookingId], references: [id], onDelete: Cascade, map: "fk_daily_booking_invoice")
   monthlyContract MonthlyContract? @relation("MonthlyContractInvoices", fields: [monthlyContractId], references: [id], onDelete: Cascade, map: "fk_monthly_contract_invoice")
   payments        Payment[]
 

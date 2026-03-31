@@ -5,15 +5,14 @@ const authRoutes = require('./src/routes/auth');
 const userRoutes = require('./src/routes/user');
 const roomRoutes = require('./src/routes/room');
 const roomTypeRoutes = require('./src/routes/roomType');
-const roomCheckRoutes = require('./src/routes/roomCheck');
 const customerRoutes = require('./src/routes/customer');
 const dailyBookingRoutes = require('./src/routes/dailyBooking');
 const monthlyContractRoutes = require('./src/routes/monthlyContract');
 const invoiceRoutes = require('./src/routes/invoice');
 const paymentRoutes = require('./src/routes/payment');
-const meterReadingRoutes = require('./src/routes/meterReading');
 const moveOutSettlementRoutes = require('./src/routes/moveOutSettlement');
-const utilityRateRoutes = require('./src/routes/utilityRate');
+const utilitiesRoutes = require('./src/routes/utilities');
+const utilityUsageRoutes = require('./src/routes/utilityUsage');
 const errorHandler = require('./src/middleware/errorHandler');
 const config = require('./src/config/server');
 
@@ -50,15 +49,14 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/room-types', roomTypeRoutes);
-app.use('/api/room-checks', roomCheckRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/daily-bookings', dailyBookingRoutes);
 app.use('/api/monthly-contracts', monthlyContractRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/payments', paymentRoutes);
-app.use('/api/meter-readings', meterReadingRoutes);
 app.use('/api/move-out-settlements', moveOutSettlementRoutes);
-app.use('/api/utility-rates', utilityRateRoutes);
+app.use('/api/utilities', utilitiesRoutes);
+app.use('/api/utility-usages', utilityUsageRoutes);
 
 /**
  * 404 Handler
