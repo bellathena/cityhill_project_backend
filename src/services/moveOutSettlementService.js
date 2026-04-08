@@ -137,7 +137,7 @@ const moveOutSettlementService = {
       const calculatedOutstandingBalance =
         data.outstandingBalance !== undefined && data.outstandingBalance !== null
           ? parseFloat(data.outstandingBalance)
-          : outstandingInfo.outstandingBalance;
+          : outstandingInfo.outstandingBalance; 
 
       const damageDeduction = data.damageDeduction ? parseFloat(data.damageDeduction) : 0;
       const cleaningFee = data.cleaningFee ? parseFloat(data.cleaningFee) : 0;
