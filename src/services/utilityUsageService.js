@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
 
 const utilityUsageService = {
   getAllUsages: async () => {
@@ -95,4 +95,4 @@ const utilityUsageService = {
   }
 };
 
-module.exports = utilityUsageService;
+export default utilityUsageService;

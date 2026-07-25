@@ -1,4 +1,4 @@
-const dailyBookingService = require('../services/dailyBookingService');
+import dailyBookingService from '../services/dailyBookingService.js';
 
 /**
  * DailyBooking Controller
@@ -54,4 +54,4 @@ const dailyBookingController = {
   }
 };
 
-module.exports = dailyBookingController;
+export default dailyBookingController;

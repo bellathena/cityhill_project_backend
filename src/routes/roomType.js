@@ -1,7 +1,6 @@
-const express = require('express');
-const roomTypeController = require('../controllers/roomTypeController');
-const { validateRoomId } = require('../middleware/validation');
-const asyncHandler = require('../middleware/asyncHandler');
+import express from 'express';
+import roomTypeController from '../controllers/roomTypeController.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -25,4 +24,4 @@ router.post('/', asyncHandler(roomTypeController.createRoomType));
 router.put('/:id', validateRoomTypeId, asyncHandler(roomTypeController.updateRoomType));
 router.delete('/:id', validateRoomTypeId, asyncHandler(roomTypeController.deleteRoomType));
 
-module.exports = router;
+export default router;

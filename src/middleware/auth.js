@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 /**
  * Authentication Middleware
@@ -9,7 +9,7 @@ const authMiddleware = (req, res, next) => {
   try {
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
       const error = new Error('No authorization header provided');
       error.status = 401;
@@ -28,7 +28,7 @@ const authMiddleware = (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     // Attach user info to request
     req.user = {
       userId: decoded.userId,
@@ -57,7 +57,7 @@ const authMiddleware = (req, res, next) => {
 const optionalAuthMiddleware = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader) {
       // No token provided, continue without user info
       return next();
@@ -72,7 +72,7 @@ const optionalAuthMiddleware = (req, res, next) => {
 
     const token = parts[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     req.user = {
       userId: decoded.userId,
       username: decoded.username,
@@ -113,7 +113,7 @@ const requireRole = (allowedRoles) => {
   };
 };
 
-module.exports = {
+export {
   authMiddleware,
   optionalAuthMiddleware,
   requireRole

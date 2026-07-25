@@ -1,4 +1,4 @@
-const utilityUsageService = require('../services/utilityUsageService');
+import utilityUsageService from '../services/utilityUsageService.js';
 
 const utilityUsageController = {
   getAllUsages: async (req, res, next) => {
@@ -60,4 +60,4 @@ const utilityUsageController = {
   }
 };
 
-module.exports = utilityUsageController;
+export default utilityUsageController;

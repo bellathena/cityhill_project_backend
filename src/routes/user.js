@@ -1,6 +1,6 @@
-const express = require('express');
-const userController = require('../controllers/userController');
-const asyncHandler = require('../middleware/asyncHandler');
+import express from 'express';
+import userController from '../controllers/userController.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -45,4 +45,4 @@ router.post('/', validateUserData, asyncHandler(userController.createUser));
 router.put('/:id', validateUserId, asyncHandler(userController.updateUser));
 router.delete('/:id', validateUserId, asyncHandler(userController.deleteUser));
 
-module.exports = router;
+export default router;

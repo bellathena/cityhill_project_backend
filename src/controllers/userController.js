@@ -1,4 +1,4 @@
-const userService = require('../services/userService');
+import userService from '../services/userService.js';
 
 /**
  * User Controller
@@ -54,4 +54,4 @@ const userController = {
   }
 };
 
-module.exports = userController;
+export default userController;

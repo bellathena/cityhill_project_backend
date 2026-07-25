@@ -1,4 +1,4 @@
-const customerService = require('../services/customerService');
+import customerService from '../services/customerService.js';
 
 /**
  * Customer Controller
@@ -54,4 +54,4 @@ const customerController = {
   }
 };
 
-module.exports = customerController;
+export default customerController;

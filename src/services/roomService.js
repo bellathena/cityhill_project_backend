@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
 
 const roomService = {
   getAllRooms: async () => {
@@ -108,4 +108,4 @@ const roomService = {
   }
 };
 
-module.exports = roomService;
+export default roomService;

@@ -1,5 +1,5 @@
-const prisma = require('../utils/prisma');
-const bcrypt = require('bcryptjs');
+import prisma from '../utils/prisma.js';
+import bcrypt from 'bcryptjs';
 
 /**
  * User Service
@@ -73,7 +73,7 @@ const userService = {
   updateUser: async (id, data) => {
     // Build update object with only provided fields
     const updateData = {};
-    
+
     if (data.fullName !== undefined) updateData.fullName = data.fullName;
     if (data.role !== undefined) updateData.role = data.role;
     if (data.phone !== undefined) updateData.phone = data.phone;
@@ -114,4 +114,4 @@ const userService = {
   }
 };
 
-module.exports = userService;
+export default userService;

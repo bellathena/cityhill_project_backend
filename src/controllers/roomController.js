@@ -1,4 +1,4 @@
-const roomService = require('../services/roomService');
+import roomService from '../services/roomService.js';
 
 const roomController = {
   getAllRooms: async (req, res, next) => {
@@ -50,4 +50,4 @@ const roomController = {
   }
 };
 
-module.exports = roomController;
+export default roomController;

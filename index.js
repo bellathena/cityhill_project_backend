@@ -1,20 +1,20 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const authRoutes = require('./src/routes/auth');
-const userRoutes = require('./src/routes/user');
-const roomRoutes = require('./src/routes/room');
-const roomTypeRoutes = require('./src/routes/roomType');
-const customerRoutes = require('./src/routes/customer');
-const dailyBookingRoutes = require('./src/routes/dailyBooking');
-const monthlyContractRoutes = require('./src/routes/monthlyContract');
-const invoiceRoutes = require('./src/routes/invoice');
-const paymentRoutes = require('./src/routes/payment');
-const moveOutSettlementRoutes = require('./src/routes/moveOutSettlement');
-const utilitiesRoutes = require('./src/routes/utilities');
-const utilityUsageRoutes = require('./src/routes/utilityUsage');
-const errorHandler = require('./src/middleware/errorHandler');
-const config = require('./src/config/server');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import authRoutes from './src/routes/auth.js';
+import userRoutes from './src/routes/user.js';
+import roomRoutes from './src/routes/room.js';
+import roomTypeRoutes from './src/routes/roomType.js';
+import customerRoutes from './src/routes/customer.js';
+import dailyBookingRoutes from './src/routes/dailyBooking.js';
+import monthlyContractRoutes from './src/routes/monthlyContract.js';
+import invoiceRoutes from './src/routes/invoice.js';
+import paymentRoutes from './src/routes/payment.js';
+import moveOutSettlementRoutes from './src/routes/moveOutSettlement.js';
+import utilitiesRoutes from './src/routes/utilities.js';
+import utilityUsageRoutes from './src/routes/utilityUsage.js';
+import errorHandler from './src/middleware/errorHandler.js';
+import config from './src/config/server.js';
 
 const app = express();
 

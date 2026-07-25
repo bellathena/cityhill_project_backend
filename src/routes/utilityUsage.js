@@ -1,6 +1,6 @@
-const express = require('express');
-const utilityUsageController = require('../controllers/utilityUsageController');
-const asyncHandler = require('../middleware/asyncHandler');
+import express from 'express';
+import utilityUsageController from '../controllers/utilityUsageController.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -21,4 +21,4 @@ router.post('/', asyncHandler(utilityUsageController.createUsage));
 router.put('/:id', validateUsageId, asyncHandler(utilityUsageController.updateUsage));
 router.delete('/:id', validateUsageId, asyncHandler(utilityUsageController.deleteUsage));
 
-module.exports = router;
+export default router;

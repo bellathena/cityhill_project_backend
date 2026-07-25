@@ -1,4 +1,4 @@
-const prisma = require("../utils/prisma");
+import prisma from "../utils/prisma.js";
 
 const monthlyContractService = {
   getAllMonthlyContracts: async () => {
@@ -151,4 +151,4 @@ const monthlyContractService = {
   },
 };
 
-module.exports = monthlyContractService;
+export default monthlyContractService;

@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
 
 /**
  * Customer Service
@@ -40,7 +40,7 @@ const customerService = {
   updateCustomer: async (id, data) => {
     // Build update object with only provided fields
     const updateData = {};
-    
+
     if (data.fullName !== undefined) updateData.fullName = data.fullName;
     if (data.citizenId !== undefined) updateData.citizenId = data.citizenId;
     if (data.address !== undefined) updateData.address = data.address;
@@ -67,4 +67,4 @@ const customerService = {
   }
 };
 
-module.exports = customerService;
+export default customerService;

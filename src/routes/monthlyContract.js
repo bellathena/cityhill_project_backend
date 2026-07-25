@@ -1,6 +1,6 @@
-const express = require('express');
-const monthlyContractController = require('../controllers/monthlyContractController');
-const asyncHandler = require('../middleware/asyncHandler');
+import express from 'express';
+import monthlyContractController from '../controllers/monthlyContractController.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -24,4 +24,4 @@ router.post('/', asyncHandler(monthlyContractController.createMonthlyContract));
 router.put('/:id', validateContractId, asyncHandler(monthlyContractController.updateMonthlyContract));
 router.delete('/:id', validateContractId, asyncHandler(monthlyContractController.deleteMonthlyContract));
 
-module.exports = router;
+export default router;

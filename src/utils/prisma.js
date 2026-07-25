@@ -1,4 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
+import pkg from '@prisma/client';
+const { PrismaClient } = pkg;
 
 // Singleton pattern for PrismaClient
 let prisma;
@@ -6,10 +7,10 @@ let prisma;
 if (process.env.NODE_ENV === 'production') {
   prisma = new PrismaClient();
 } else {
-  if (!global.prisma) {
-    global.prisma = new PrismaClient();
+  if (!globalThis.prisma) {
+    globalThis.prisma = new PrismaClient();
   }
-  prisma = global.prisma;
+  prisma = globalThis.prisma;
 }
 
-module.exports = prisma;
+export default prisma;
