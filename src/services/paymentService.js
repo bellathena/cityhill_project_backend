@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
 
 /**
  * Payment Service
@@ -37,7 +37,7 @@ const paymentService = {
   updatePayment: async (id, data) => {
     // Build update object with only provided fields
     const updateData = {};
-    
+
     if (data.invoiceId !== undefined) updateData.invoiceId = parseInt(data.invoiceId);
     if (data.paymentDate !== undefined) updateData.paymentDate = new Date(data.paymentDate);
     if (data.paymentMethod !== undefined) updateData.paymentMethod = data.paymentMethod;
@@ -63,4 +63,4 @@ const paymentService = {
   }
 };
 
-module.exports = paymentService;
+export default paymentService;

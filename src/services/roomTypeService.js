@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
 
 /**
  * RoomType Service
@@ -27,7 +27,7 @@ const roomTypeService = {
       const error = new Error('typeName, baseMonthlyRate, and baseDailyRate are required');
       error.status = 400;
       throw error;
-    } 
+    }
     return await prisma.roomType.create({
       data: {
         typeName: data.typeName,
@@ -41,13 +41,13 @@ const roomTypeService = {
 
   updateRoomType: async (id, data) => {
     const updateData = {};
-    
+
     if (data.typeName !== undefined) updateData.typeName = data.typeName;
     if (data.description !== undefined) updateData.description = data.description;
     if (data.baseMonthlyRate !== undefined) updateData.baseMonthlyRate = parseInt(data.baseMonthlyRate);
     if (data.baseDailyRate !== undefined) updateData.baseDailyRate = parseInt(data.baseDailyRate);
 
-  
+
     if (Object.keys(updateData).length === 0) {
       const error = new Error('No fields to update');
       error.status = 400;
@@ -67,4 +67,4 @@ const roomTypeService = {
   }
 };
 
-module.exports = roomTypeService;
+export default roomTypeService;

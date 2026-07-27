@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import moveOutSettlementController from '../controllers/moveOutSettlementController.js';
+
 const router = express.Router();
-const moveOutSettlementController = require('../controllers/moveOutSettlementController');
 
 /**
  * MoveOutSettlement Routes
@@ -27,4 +28,4 @@ router.put('/:id', moveOutSettlementController.updateSettlement);
 // DELETE settlement
 router.delete('/:id', moveOutSettlementController.deleteSettlement);
 
-module.exports = router;
+export default router;

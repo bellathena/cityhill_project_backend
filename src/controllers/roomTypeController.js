@@ -1,4 +1,4 @@
-const roomTypeService = require('../services/roomTypeService');
+import roomTypeService from '../services/roomTypeService.js';
 
 /**
  * RoomType Controller
@@ -54,4 +54,4 @@ const roomTypeController = {
   }
 };
 
-module.exports = roomTypeController;
+export default roomTypeController;

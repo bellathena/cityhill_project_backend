@@ -1,6 +1,6 @@
-const express = require('express');
-const paymentController = require('../controllers/paymentController');
-const asyncHandler = require('../middleware/asyncHandler');
+import express from 'express';
+import paymentController from '../controllers/paymentController.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -24,4 +24,4 @@ router.post('/', asyncHandler(paymentController.createPayment));
 router.put('/:id', validatePaymentId, asyncHandler(paymentController.updatePayment));
 router.delete('/:id', validatePaymentId, asyncHandler(paymentController.deletePayment));
 
-module.exports = router;
+export default router;

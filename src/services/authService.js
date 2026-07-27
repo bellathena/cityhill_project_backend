@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
-const userService = require('../services/userService');
+import bcrypt from 'bcryptjs';
+import userService from '../services/userService.js';
 
 /**
  * Authentication Service
@@ -47,4 +47,4 @@ const authService = {
   }
 };
 
-module.exports = authService;
+export default authService;

@@ -1,5 +1,5 @@
-const moveOutSettlementService = require('../services/moveOutSettlementService');
-const asyncHandler = require('../middleware/asyncHandler');
+import moveOutSettlementService from '../services/moveOutSettlementService.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 /**
  * MoveOutSettlement Controller
@@ -104,4 +104,4 @@ const moveOutSettlementController = {
   })
 };
 
-module.exports = moveOutSettlementController;
+export default moveOutSettlementController;

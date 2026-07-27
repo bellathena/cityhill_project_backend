@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 /**
  * JWT Utilities
@@ -20,8 +20,8 @@ const jwtUtils = {
   },
 
   // Verify JWT token
-  verifyToken: (token) => {   
-       try {
+  verifyToken: (token) => {
+    try {
       return jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
       throw new Error(`Invalid token: ${error.message}`);
@@ -46,4 +46,4 @@ const jwtUtils = {
   }
 };
 
-module.exports = jwtUtils;
+export default jwtUtils;

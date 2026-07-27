@@ -1,4 +1,4 @@
-const invoiceService = require('../services/invoiceService');
+import invoiceService from '../services/invoiceService.js';
 
 /**
  * Invoice Controller
@@ -54,4 +54,4 @@ const invoiceController = {
   }
 };
 
-module.exports = invoiceController;
+export default invoiceController;

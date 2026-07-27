@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const authService = require('../services/authService');
+import jwt from 'jsonwebtoken';
+import authService from '../services/authService.js';
 
 const authController = {
   login: async (req, res, next) => {
@@ -40,4 +40,4 @@ const authController = {
   }
 };
 
-module.exports = authController;
+export default authController;

@@ -32,7 +32,7 @@ const validateRoomId = (req, res, next) => {
   next();
 };
 
-module.exports = {
+export {
   validateRoom,
   validateRoomId
 };

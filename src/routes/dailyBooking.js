@@ -1,6 +1,6 @@
-const express = require('express');
-const dailyBookingController = require('../controllers/dailyBookingController');
-const asyncHandler = require('../middleware/asyncHandler');
+import express from 'express';
+import dailyBookingController from '../controllers/dailyBookingController.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -24,4 +24,4 @@ router.post('/', asyncHandler(dailyBookingController.createDailyBooking));
 router.put('/:id', validateBookingId, asyncHandler(dailyBookingController.updateDailyBooking));
 router.delete('/:id', validateBookingId, asyncHandler(dailyBookingController.deleteDailyBooking));
 
-module.exports = router;
+export default router;

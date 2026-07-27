@@ -1,7 +1,7 @@
-const express = require('express');
-const roomController = require('../controllers/roomController');
-const { validateRoom, validateRoomId } = require('../middleware/validation');
-const asyncHandler = require('../middleware/asyncHandler');
+import express from 'express';
+import roomController from '../controllers/roomController.js';
+import { validateRoom, validateRoomId } from '../middleware/validation.js';
+import asyncHandler from '../middleware/asyncHandler.js';
 
 const router = express.Router();
 
@@ -25,4 +25,4 @@ router.put('/:id', validateRoomId, asyncHandler(roomController.updateRoom));
 // DELETE /api/rooms/:id - Delete room
 router.delete('/:id', validateRoomId, asyncHandler(roomController.deleteRoom));
 
-module.exports = router;
+export default router;

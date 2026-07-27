@@ -1,7 +1,7 @@
-const express = require('express');
-const customerController = require('../controllers/customerController');
-const asyncHandler = require('../middleware/asyncHandler');
-const auth = require('../middleware/auth');
+import express from 'express';
+import customerController from '../controllers/customerController.js';
+import asyncHandler from '../middleware/asyncHandler.js';
+
 const router = express.Router();
 
 const validateCustomerId = (req, res, next) => {
@@ -18,10 +18,10 @@ const validateCustomerId = (req, res, next) => {
  * Customer Routes
  */
 
-router.get('/',asyncHandler(customerController.getAllCustomers));
+router.get('/', asyncHandler(customerController.getAllCustomers));
 router.get('/:id', validateCustomerId, asyncHandler(customerController.getCustomerById));
 router.post('/', asyncHandler(customerController.createCustomer));
 router.put('/:id', validateCustomerId, asyncHandler(customerController.updateCustomer));
 router.delete('/:id', validateCustomerId, asyncHandler(customerController.deleteCustomer));
 
-module.exports = router;
+export default router;

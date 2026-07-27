@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
 
 const invoiceService = {
   getAllInvoices: async () => {
@@ -99,4 +99,4 @@ const invoiceService = {
   }
 };
 
-module.exports = invoiceService;
+export default invoiceService;

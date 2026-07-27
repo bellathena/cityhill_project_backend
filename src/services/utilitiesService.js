@@ -1,4 +1,5 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
+import { recalculateInvoicesForUtilityType } from './invoiceRecalculationService.js';
 
 const utilitiesService = {
   getAllUtilities: async () => {
@@ -35,9 +36,19 @@ const utilitiesService = {
       throw error;
     }
 
-    return await prisma.utilities.update({
-      where: { id },
-      data: updateData
+    const shouldRecalculateInvoices = data.ratePerUnit !== undefined;
+
+    return await prisma.$transaction(async (tx) => {
+      const utility = await tx.utilities.update({
+        where: { id },
+        data: updateData
+      });
+
+      if (shouldRecalculateInvoices) {
+        await recalculateInvoicesForUtilityType(tx, id);
+      }
+
+      return utility;
     });
   },
 
@@ -48,4 +59,4 @@ const utilitiesService = {
   }
 };
 
-module.exports = utilitiesService;
+export default utilitiesService;

@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+import prisma from '../utils/prisma.js';
 
 const dailyBookingService = {
   getAllDailyBookings: async () => {
@@ -133,4 +133,4 @@ const dailyBookingService = {
   }
 };
 
-module.exports = dailyBookingService;
+export default dailyBookingService;

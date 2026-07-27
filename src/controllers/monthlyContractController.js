@@ -1,4 +1,4 @@
-const monthlyContractService = require('../services/monthlyContractService');
+import monthlyContractService from '../services/monthlyContractService.js';
 
 /**
  * MonthlyContract Controller
@@ -54,4 +54,4 @@ const monthlyContractController = {
   }
 };
 
-module.exports = monthlyContractController;
+export default monthlyContractController;
