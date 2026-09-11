@@ -23,7 +23,8 @@ const roomTypeService = {
   },
 
   createRoomType: async (data) => {
-    if(!data.typeName || !data.baseMonthlyRate || !data.baseDailyRate) {
+    if(!data.typeName || data.baseMonthlyRate == null|| data.baseDailyRate == null ) {
+      console.log('Missing required fields:', data);
       const error = new Error('typeName, baseMonthlyRate, and baseDailyRate are required');
       error.status = 400;
       throw error;
